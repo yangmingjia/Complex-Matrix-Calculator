@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include "matrix.h"
 #include "parser.tab.h"
-
-int line_number = 1;
-int yywrap(void);
 %}
 
 /* Regular definitions */
@@ -26,6 +23,8 @@ NEWLINE     \n
 "]"             { return RBRACKET; }
 ","             { return COMMA; }
 ";"             { return SEMICOLON; }
+"("             { return '('; }
+")"             { return ')'; }
 
 "+"             { return PLUS; }
 "-"             { return MINUS; }
@@ -42,23 +41,50 @@ NEWLINE     \n
 "rank"          { return RANK; }
 "lu"            { return LU; }
 "qr"            { return QR; }
+"exp"           { return EXP; }
+"log"           { return LOG; }
+"norm"          { return NORM; }
+"quit"          { exit(0); }
+"help"          { 
+     printf("\nMatrix Calculator Help\n");
+     printf("===================\n");
+     printf("Basic Functions:\n");
+     printf("- det(A)        : Calculate determinant of matrix A\n");
+     printf("- transpose(A)  : Get transpose of matrix A\n");
+     printf("- inverse(A)    : Calculate inverse of matrix A\n");
+     printf("- trace(A)      : Sum of diagonal elements of A\n");
+     printf("- rank(A)       : Calculate rank of matrix A\n");
+     printf("- norm(A)       : Calculate Frobenius norm of A\n");
+     printf("\nDecompositions:\n");
+     printf("- lu(A)         : LU decomposition (returns [L;U])\n");
+     printf("- qr(A)         : QR decomposition (returns [Q;R])\n");
+     printf("\nEigenvalue Analysis:\n");
+     printf("- eigenval(A)   : Calculate eigenvalues of A\n");
+     printf("- eigenvec(A)   : Calculate eigenvectors of A\n");
+     printf("\nMatrix Functions:\n");
+     printf("- exp(A)        : Matrix exponential e^A\n");
+     printf("- log(A)        : Matrix natural logarithm\n");
+     printf("\nOperations:\n");
+     printf("- A + B         : Matrix addition\n");
+     printf("- A - B         : Matrix subtraction\n");
+     printf("- A * B         : Matrix multiplication\n");
+     printf("- A / B         : Matrix division (A * B^(-1))\n");
+     printf("- A ^ n         : Matrix power (n must be non-negative integer)\n");
+     printf("\nEnter expression: ");
+ }
 
 {WHITESPACE}    { /* ignore whitespace */ }
 {NEWLINE}       { 
-                  line_number++;
-                  printf("\nEnter expression: ");
-                  fflush(stdout);
                   return '\n';
                 }
 
-.               { 
-                  printf("Error at line %d: Unknown character '%s'\n", 
-                         line_number, yytext);
-                  return -1;
+.               { /* unknown character */
+                  return ERROR_TOKEN;  /* Return custom error token */
                 }
 %%
 
-int yywrap() {
+int yywrap() 
+{
     return 1;
 }
 

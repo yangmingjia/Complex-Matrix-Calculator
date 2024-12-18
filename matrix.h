@@ -1,66 +1,93 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-// Complex number structure
-typedef struct {
-    double real;
-    double imag;
-} Complex;
+/* Matrix element type */
+typedef double Element;
 
-// Matrix structure with complex numbers
-typedef struct {
-    int rows;
-    int cols;
-    Complex** data;
+/* Matrix structure
+ * Represents a matrix of real numbers
+ * Stores dimensions and a 2D array of real numbers
+ */
+typedef struct 
+{
+    int rows;       /* Number of rows in the matrix */
+    int cols;       /* Number of columns in the matrix */
+    Element** data; /* 2D array of real numbers */
 } Matrix;
 
-// Complex number operations
-Complex complex_add(Complex a, Complex b);
-Complex complex_subtract(Complex a, Complex b);
-Complex complex_multiply(Complex a, Complex b);
-Complex complex_divide(Complex a, Complex b);
-Complex complex_conjugate(Complex a);
-double complex_abs(Complex a);
-Complex complex_from_real(double real);
+/* Matrix creation and memory management
+ * Functions for matrix initialization and cleanup
+ */
+Matrix* create_matrix(int rows, int cols);        /* Create new matrix */
+void free_matrix(Matrix* m);                      /* Free matrix memory */
+Matrix* create_matrix_element(Element value);     /* Create 1x1 matrix */
+Matrix* add_element(Matrix* m, Element value);    /* Add element to matrix */
+Matrix* append_row(Matrix* m1, Matrix* m2);       /* Append row to matrix */
 
-// Matrix creation and memory management
-Matrix* create_matrix(int rows, int cols);
-void free_matrix(Matrix* m);
-Matrix* create_matrix_element(Complex value);
-Matrix* add_element(Matrix* m, Complex value);
-Matrix* append_row(Matrix* m1, Matrix* m2);
+/* Basic matrix operations
+ * Fundamental matrix arithmetic and operations
+ */
+Matrix* matrix_add(Matrix* m1, Matrix* m2);       /* Matrix addition */
+Matrix* matrix_subtract(Matrix* m1, Matrix* m2);  /* Matrix subtraction */
+Matrix* matrix_multiply(Matrix* m1, Matrix* m2);  /* Matrix multiplication */
+Matrix* matrix_transpose(Matrix* m);              /* Matrix transpose */
+Matrix* matrix_conjugate_transpose(Matrix* m);    /* Conjugate transpose */
+Matrix* matrix_determinant(Matrix* m);            /* Matrix determinant */
 
-// Basic matrix operations
-Matrix* matrix_add(Matrix* m1, Matrix* m2);
-Matrix* matrix_subtract(Matrix* m1, Matrix* m2);
-Matrix* matrix_multiply(Matrix* m1, Matrix* m2);
-Matrix* matrix_transpose(Matrix* m);
-Matrix* matrix_conjugate_transpose(Matrix* m);
-Matrix* matrix_determinant(Matrix* m);
+/* Advanced matrix operations
+ * Higher-level matrix computations
+ */
+Matrix* matrix_inverse(Matrix* m);                /* Matrix inverse */
+Matrix* matrix_eigenvalues(Matrix* m);            /* Compute eigenvalues */
+Matrix* matrix_eigenvectors(Matrix* m);           /* Compute eigenvectors */
+Matrix* matrix_lu_decomposition(Matrix* m);       /* LU decomposition */
+Matrix* matrix_qr_decomposition(Matrix* m);       /* QR decomposition */
+Matrix* matrix_schur_decomposition(Matrix* m);    /* Schur decomposition */
 
-// Advanced matrix operations
-Matrix* matrix_inverse(Matrix* m);
-Matrix* matrix_eigenvalues(Matrix* m);
-Matrix* matrix_eigenvectors(Matrix* m);
-Matrix* matrix_lu_decomposition(Matrix* m);
-Matrix* matrix_qr_decomposition(Matrix* m);
-Matrix* matrix_schur_decomposition(Matrix* m);
+/* Additional matrix operations
+ * Extended functionality for matrix computations
+ */
+Matrix* matrix_divide(Matrix* m1, Matrix* m2);    /* Matrix division (A/B = A*B^(-1)) */
+Matrix* matrix_power(Matrix* m1, Matrix* m2);     /* Matrix power */
+Matrix* solve_linear_system(Matrix* A, Matrix* b); /* Solve Ax = b */
+Element complex_sqrt(Element a);                  /* Complex square root */
 
-// Additional matrix operations
-Matrix* matrix_divide(Matrix* m1, Matrix* m2);
-Matrix* matrix_power(Matrix* m1, Matrix* m2);
-Matrix* solve_linear_system(Matrix* A, Matrix* b);
-Complex complex_sqrt(Complex a);
+/* Advanced matrix functions
+ * Matrix exponential, logarithm and norm
+ */
+Matrix* matrix_exp(Matrix* m);                  /* Matrix exponential */
+Matrix* matrix_log(Matrix* m);                  /* Matrix logarithm */
+double matrix_norm(Matrix* m);                  /* Frobenius norm */
 
-// Utility functions
-void print_matrix(Matrix* m);
-int matrix_is_square(Matrix* m);
-Complex matrix_trace(Matrix* m);
-int matrix_rank(Matrix* m);
-int matrix_is_hermitian(Matrix* m);
+/* Utility functions
+ * Helper functions for matrix operations
+ */
+void print_matrix(Matrix* m);                     /* Print matrix to stdout */
+int matrix_is_square(Matrix* m);                  /* Check if matrix is square */
+Element matrix_trace(Matrix* m);                  /* Compute matrix trace */
+int matrix_rank(Matrix* m);                       /* Compute matrix rank */
+int matrix_is_hermitian(Matrix* m);               /* Check if matrix is Hermitian */
 
-// Error handling
-extern int matrix_errno;
-const char* matrix_strerror(int errno);
+/* Error handling
+ * Error reporting and management
+ */
+extern int matrix_errno;                          /* Error number for matrix operations */
+
+/* Error code definitions for matrix operations */
+typedef enum {
+    MATRIX_SUCCESS = 0,        /* Operation completed successfully */
+    MATRIX_NULL_PTR,          /* Invalid matrix pointer */
+    MATRIX_DIM_MISMATCH,      /* Matrix dimensions do not match */
+    MATRIX_NOT_SQUARE,        /* Operation requires square matrix */
+    MATRIX_SINGULAR,          /* Matrix is singular (non-invertible) */
+    MATRIX_MEM_ERROR,         /* Memory allocation failed */
+    MATRIX_INVALID_POWER,     /* Invalid power operation */
+    MATRIX_CONVERGENCE_ERROR  /* Algorithm failed to converge */
+} MatrixError;
+
+/* Error handling function declarations */
+void matrix_perror(const char* op, MatrixError err);  /* Print error message */
+MatrixError get_last_error(void);                     /* Get last error code */
+void set_last_error(MatrixError err);                 /* Set error code */
 
 #endif 
