@@ -4,26 +4,16 @@
 #include "matrix.h"
 #include "parser.tab.h"
 
-
 extern int yylex(void);
 void yyerror(const char *s);
 
 /* Flag to prevent print multiple error messages for the same syntax error */
 int syntax_error_printed = 0;
-
-/* Matrix operation error handler
- * Handles errors from matrix operations where the result is NULL
- * The specific error message is printed by matrix_perror
- */
-void handle_matrix_error(const char* op, Matrix* result) {
-    if (!result) {
-        /* Error message already printed by matrix_perror */
-    }
-}
 %}
 
-/* Define the token types and the union data type for the parser
- * The union data type is used to store the numeric values and matrix pointers
+/* Define the token types and the union data type for the parser.
+ * The union data type is used to store 
+ * the numeric values and matrix pointers
  */
 %union {
     double num;           /* For numeric literals */
@@ -46,32 +36,30 @@ void handle_matrix_error(const char* op, Matrix* result) {
 /* Token definitions for lexical analysis */
 %token <num> NUMBER                              /* Numeric values */
 %token LBRACKET RBRACKET COMMA SEMICOLON        /* Matrix delimiters */
-%token PLUS MINUS MULTIPLY DIVIDE POWER          /* Basic operators */
-%token DET TRANSPOSE INVERSE EIGENVAL EIGENVEC   /* Matrix operations */
-%token LU QR TRACE RANK                         /* Advanced matrix operations */
+%token PLUS MINUS MULTIPLY DIVIDE POWER          /* Matrix operations */
+%token DET TRANSPOSE INVERSE EIGENVAL EIGENVEC   
+%token LU QR TRACE RANK                         
 %token ERROR_TOKEN                              /* For error handling */
 %token HELP                                    /* Help command */
-%token EXP LOG NORM
 
 /* Type declarations for non-terminal symbols */
-%type <matrix> matrix expr
+%type <matrix> matrix expr 
 %type <matrix> matrix_rows matrix_row
 
 %%
 
 /* Grammar Rules Section */
 
-/* Main program structure
- * Handles input processing and error recovery
- */
+/* Main program */
 program: lines
        ;
 
 lines: lines expr '\n'   { 
-        if ($2) {
+        if ($2) 
+        {
             printf("Answer:\n");
-            print_matrix($2); 
-            free_matrix($2);
+            print_matrix($2); /* Print the result of the expression */
+            free_matrix($2); /* Free memory allocated for the matrix */
         }
         printf("\nEnter expression: ");
         fflush(stdout);
@@ -79,17 +67,21 @@ lines: lines expr '\n'   {
      }
      | lines error '\n' { 
         yyerrok;
-        if (!syntax_error_printed) {
+        if (!syntax_error_printed) 
+        {
+            /* Print error message */
             printf("Error: Syntax error\n");
             syntax_error_printed = 1;
         }
+        /* Wait for new input */
         printf("\nEnter expression: ");
         fflush(stdout);
         syntax_error_printed = 0;
      }
      | lines ERROR_TOKEN '\n' {
         yyerrok;
-        if (!syntax_error_printed) {
+        if (!syntax_error_printed) 
+        {
             printf("Error: Syntax error\n");
             syntax_error_printed = 1;
         }
@@ -97,13 +89,11 @@ lines: lines expr '\n'   {
         fflush(stdout);
         syntax_error_printed = 0;
      }
-     | lines HELP      { /* 不做任何操作，继续等待新的输入 */ }
-     | /* empty */     { printf("Enter expression: "); fflush(stdout); }
+     | lines HELP      { /* Wait for new input */ }
+     | /* empty */     { printf("Enter expression: "); fflush(stdout); } /* Initial prompt */
      ;
 
-/* Expression Rules
- * Define all possible matrix operations and their syntax
- */
+/* Expression Rules */
 expr: matrix                { $$ = $1; }
     | '(' expr ')'         { $$ = $2; }
     | expr POWER NUMBER    { 
@@ -123,16 +113,7 @@ expr: matrix                { $$ = $1; }
     | EIGENVEC expr        { $$ = matrix_eigenvectors($2); }
     | LU expr              { $$ = matrix_lu_decomposition($2); }
     | QR expr              { $$ = matrix_qr_decomposition($2); }
-    | EXP expr             { $$ = matrix_exp($2); }
-    | LOG expr             { $$ = matrix_log($2); }
-    | NORM expr            {
-        double norm_val = matrix_norm($2);
-        $$ = create_matrix_element(norm_val);
-    }
-    | RANK expr            {
-        double rank_val = matrix_rank($2);
-        $$ = create_matrix_element(rank_val);
-    }
+    | RANK expr            { $$ = matrix_rank($2); }
     ;
 
 /* Matrix Construction Rules
@@ -157,7 +138,7 @@ matrix_row: NUMBER                               { $$ = create_matrix_element($1
  */
 void yyerror(const char *s) 
 {
-    /* Prevent multiple error messages */
+    /* Prevent printing multiple error messages */
     if (!syntax_error_printed) 
     {
         printf("Error: Syntax error\n");

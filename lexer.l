@@ -41,9 +41,6 @@ NEWLINE     \n
 "rank"          { return RANK; }
 "lu"            { return LU; }
 "qr"            { return QR; }
-"exp"           { return EXP; }
-"log"           { return LOG; }
-"norm"          { return NORM; }
 
 "Q"             { exit(0); }
 "q"             { exit(0); }
@@ -64,10 +61,6 @@ NEWLINE     \n
      printf("- inverse A     : Calculate inverse of matrix A\n");
      printf("- trace A       : Sum of diagonal elements of A\n");
      printf("- rank A        : Calculate rank of matrix A\n");
-     printf("- norm A        : Calculate Frobenius norm of A\n");
-     printf("\nMatrix Functions:\n");
-     printf("- exp A         : Matrix exponential e^A\n");
-     printf("- log A         : Matrix natural logarithm\n");
      printf("\nDecompositions:\n");
      printf("- lu A          : LU decomposition (returns [L;U])\n");
      printf("- qr A          : QR decomposition (returns [Q;R])\n");
