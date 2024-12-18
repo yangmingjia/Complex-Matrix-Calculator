@@ -44,7 +44,11 @@ NEWLINE     \n
 "exp"           { return EXP; }
 "log"           { return LOG; }
 "norm"          { return NORM; }
+
+"Q"             { exit(0); }
+"q"             { exit(0); }
 "quit"          { exit(0); }
+
 "help"          { 
      printf("\nMatrix Calculator Help\n");
      printf("===================\n");
@@ -54,7 +58,7 @@ NEWLINE     \n
      printf("- A * B         : Matrix multiplication\n");
      printf("- A / B         : Matrix division (A * B^(-1))\n");
      printf("- A ^ n         : Matrix power (integer n >= 0)\n");
-     printf("Basic Functions:\n");
+     printf("\nBasic Functions:\n");
      printf("- detA          : Calculate determinant of matrix A\n");
      printf("- transpose A   : Get transpose of matrix A\n");
      printf("- inverse A     : Calculate inverse of matrix A\n");

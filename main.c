@@ -292,7 +292,14 @@ double calc_determinant(Matrix* m) {
 
 // Matrix determinant wrapper function
 Matrix* matrix_determinant(Matrix* m) {
-    if (!m || m->rows != m->cols) return NULL;
+    if (!m) {
+        matrix_perror("determinant", MATRIX_NULL_PTR);
+        return NULL;
+    }
+    if (!matrix_is_square(m)) {
+        matrix_perror("determinant", MATRIX_NOT_SQUARE);
+        return NULL;
+    }
     double det = calc_determinant(m);
     return create_matrix_element(det);
 }
@@ -563,7 +570,14 @@ Matrix* matrix_inverse(Matrix* m) {
 
 // Calculate eigenvalues using QR algorithm
 Matrix* matrix_eigenvalues(Matrix* m) {
-    if (!m || !matrix_is_square(m)) return NULL;
+    if (!m) {
+        matrix_perror("eigenvalues", MATRIX_NULL_PTR);
+        return NULL;
+    }
+    if (!matrix_is_square(m)) {
+        matrix_perror("eigenvalues", MATRIX_NOT_SQUARE);
+        return NULL;
+    }
     
     int n = m->rows;
     Matrix* A = create_matrix(n, n);
@@ -975,7 +989,14 @@ Matrix* matrix_log(Matrix* m) {
 
 // Eigenvector calculation
 Matrix* matrix_eigenvectors(Matrix* m) {
-    if (!matrix_is_square(m)) return NULL;
+    if (!m) {
+        matrix_perror("eigenvectors", MATRIX_NULL_PTR);
+        return NULL;
+    }
+    if (!matrix_is_square(m)) {
+        matrix_perror("eigenvectors", MATRIX_NOT_SQUARE);
+        return NULL;
+    }
     
     Matrix* eigenvalues = matrix_eigenvalues(m);
     if (!eigenvalues) return NULL;
@@ -1091,9 +1112,8 @@ int main(int argc, char *argv[]) {
     printf("- Example: [1,2;3,4] * [5,6;7,8]\n");
     printf("- Use parentheses to control operation order: ([1,2;3,4] + [5,6;7,8]) * [1,0;0,1]\n");
     printf("Enter 'help' for details, 'quit' to exit\n");
-    printf("================\n\n");
+    printf("================\n");
 
-    printf("Enter expression: ");
     yyparse();
     return 0;
 }
