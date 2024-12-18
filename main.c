@@ -363,7 +363,7 @@ int matrix_is_square(Matrix* m) {
 }
 
 // Calculate matrix trace (sum of diagonal elements)
-double matrix_trace(Matrix* m) {
+Matrix* matrix_trace(Matrix* m) {
     if (!m) {
         matrix_perror("trace", MATRIX_NULL_PTR);
         return NULL;
@@ -377,7 +377,7 @@ double matrix_trace(Matrix* m) {
     for (int i = 0; i < m->rows; i++) {
         trace += m->data[i][i];
     }
-    return trace;
+    return create_matrix_element(trace);
 }
 
 // LU Decomposition using Doolittle's method

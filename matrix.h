@@ -62,7 +62,7 @@ double matrix_norm(Matrix* m);                  /* Frobenius norm */
  */
 void print_matrix(Matrix* m);                     /* Print matrix to stdout */
 int matrix_is_square(Matrix* m);                  /* Check if matrix is square */
-Element matrix_trace(Matrix* m);                  /* Compute matrix trace */
+Matrix* matrix_trace(Matrix* m);                  /* Compute matrix trace */
 int matrix_rank(Matrix* m);                       /* Compute matrix rank */
 
 /* Error handling

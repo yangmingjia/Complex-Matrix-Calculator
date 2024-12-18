@@ -77,22 +77,22 @@ NEWLINE     \n
      
      
      printf("\nEnter expression: ");
-     input();         /* 消耗掉换行符 */
-     return HELP;     /* 返回HELP token */
+     input();         /* Consume \n */
+     return HELP;     /* Return HELP token */
  }
 
-{WHITESPACE}    { /* ignore whitespace */ }
+{WHITESPACE}    { /* Ignore whitespace */ }
 {NEWLINE}       { 
                   return '\n';
                 }
 
-.               { /* unknown character */
+.               { /* Unknown character */
                   return ERROR_TOKEN;  /* Return custom error token */
                 }
 %%
 
 int yywrap() 
 {
-    return 1;
+    return 1; 
 }
 

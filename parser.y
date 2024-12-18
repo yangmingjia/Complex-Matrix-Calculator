@@ -4,11 +4,11 @@
 #include "matrix.h"
 #include "parser.tab.h"
 
-/* External declarations for lexical analyzer */
+
 extern int yylex(void);
 void yyerror(const char *s);
 
-/* Flag to prevent multiple error messages for the same syntax error */
+/* Flag to prevent print multiple error messages for the same syntax error */
 int syntax_error_printed = 0;
 
 /* Matrix operation error handler
@@ -22,8 +22,8 @@ void handle_matrix_error(const char* op, Matrix* result) {
 }
 %}
 
-/* Define data types for semantic values
- * These types are used to store values during parsing
+/* Define the token types and the union data type for the parser
+ * The union data type is used to store the numeric values and matrix pointers
  */
 %union {
     double num;           /* For numeric literals */
@@ -31,7 +31,7 @@ void handle_matrix_error(const char* op, Matrix* result) {
 }
 
 /* Operator precedence and associativity (lowest to highest)
- * This defines the order of operations for the calculator
+ * Defines the order of operations for the calculator
  */
 %left PLUS MINUS                   /* Addition and subtraction - lowest priority */
 %left MULTIPLY DIVIDE              /* Multiplication and division */
@@ -118,6 +118,7 @@ expr: matrix                { $$ = $1; }
     | DET expr             { $$ = matrix_determinant($2); }
     | TRANSPOSE expr       { $$ = matrix_transpose($2); }
     | INVERSE expr         { $$ = matrix_inverse($2); }
+    | TRACE expr           { $$ = matrix_trace($2); }
     | EIGENVAL expr        { $$ = matrix_eigenvalues($2); }
     | EIGENVEC expr        { $$ = matrix_eigenvectors($2); }
     | LU expr              { $$ = matrix_lu_decomposition($2); }
@@ -127,10 +128,6 @@ expr: matrix                { $$ = $1; }
     | NORM expr            {
         double norm_val = matrix_norm($2);
         $$ = create_matrix_element(norm_val);
-    }
-    | TRACE expr           {
-        double trace = matrix_trace($2);
-        $$ = create_matrix_element(trace);
     }
     | RANK expr            {
         double rank_val = matrix_rank($2);
@@ -160,8 +157,10 @@ matrix_row: NUMBER                               { $$ = create_matrix_element($1
  */
 void yyerror(const char *s) 
 {
-    if (!syntax_error_printed) {
+    /* Prevent multiple error messages */
+    if (!syntax_error_printed) 
+    {
         printf("Error: Syntax error\n");
-        syntax_error_printed = 1;
+        syntax_error_printed = 1; /* Set flag to 1 */
     }
 } 
