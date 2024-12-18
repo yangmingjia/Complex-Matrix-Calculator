@@ -805,11 +805,26 @@ Matrix* matrix_divide(Matrix* m1, Matrix* m2) {
 
 // Matrix power using repeated multiplication
 Matrix* matrix_power(Matrix* m, Matrix* exp) {
-    if (!m || !exp || !matrix_is_square(m) || exp->rows != 1 || exp->cols != 1) 
+    if (!m || !exp) {
+        matrix_perror("power", MATRIX_NULL_PTR);
         return NULL;
+    }
+    
+    if (!matrix_is_square(m)) {
+        matrix_perror("power", MATRIX_NOT_SQUARE);
+        return NULL;
+    }
+    
+    if (exp->rows != 1 || exp->cols != 1) {
+        matrix_perror("power", MATRIX_INVALID_POWER);
+        return NULL;
+    }
     
     int power = (int)exp->data[0][0];
-    if (power < 0) return NULL;
+    if (power < 0) {
+        matrix_perror("power", MATRIX_INVALID_POWER);
+        return NULL;
+    }
     
     if (power == 0) {
         // Return identity matrix
@@ -852,7 +867,7 @@ double matrix_norm(Matrix* m) {
     return sqrt(sum);
 }
 
-// 阵指数函数
+// 矩阵指数函数 (e^A)
 Matrix* matrix_exp(Matrix* m) {
     if (!matrix_is_square(m)) {
         matrix_perror("exp", MATRIX_NOT_SQUARE);
@@ -863,23 +878,26 @@ Matrix* matrix_exp(Matrix* m) {
     Matrix* result = create_matrix(n, n);
     if (!result) return NULL;
     
-    // 使用泰勒级数展开计算
-    Matrix* term = create_matrix(n, n);
+    // 初始化单位矩阵作为第一项
     Matrix* sum = create_matrix(n, n);
-    if (!term || !sum) {
-        free_matrix(term);
+    Matrix* term = create_matrix(n, n);
+    if (!sum || !term) {
         free_matrix(sum);
+        free_matrix(term);
         free_matrix(result);
         return NULL;
     }
     
-    // 初始化为单位矩阵
+    // 初始化为单位矩阵 I
     for (int i = 0; i < n; i++) {
-        term->data[i][i] = 1.0;
-        sum->data[i][i] = 1.0;
+        sum->data[i][i] = 1.0;  // sum = I
+        term->data[i][i] = 1.0; // term = I
     }
     
     double factorial = 1.0;
+    
+    // 使用泰勒级数展开计算
+    // exp(A) = I + A + A^2/2! + A^3/3! + ...
     for (int k = 1; k <= 20; k++) {  // 20阶泰展开
         factorial *= k;
         Matrix* new_term = matrix_multiply(term, m);
