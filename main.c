@@ -364,7 +364,14 @@ int matrix_is_square(Matrix* m) {
 
 // Calculate matrix trace (sum of diagonal elements)
 double matrix_trace(Matrix* m) {
-    if (!matrix_is_square(m)) return 0;
+    if (!m) {
+        matrix_perror("trace", MATRIX_NULL_PTR);
+        return NULL;
+    }
+    if (!matrix_is_square(m)) {
+        matrix_perror("trace", MATRIX_NOT_SQUARE);
+        return NULL;
+    }
     
     double trace = 0;
     for (int i = 0; i < m->rows; i++) {
