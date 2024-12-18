@@ -2,6 +2,14 @@
 
 A powerful calculator supporting both real and complex matrix operations.
 
+---
+
+This is the English README file.
+点击 [这里](README_zh.md) 查看中文版本。
+
+---
+
+
 ## Table of Contents
 
 - [Features](#features)
