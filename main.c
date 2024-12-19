@@ -807,57 +807,6 @@ Matrix* matrix_rank(Matrix* m)
     
 }
 
-// Solve linear system Ax = b using LU decomposition
-Matrix* solve_linear_system(Matrix* A, Matrix* b) 
-{
-    if (!A || !b || !matrix_is_square(A) || A->rows != b->rows || b->cols != 1) 
-        return NULL;
-    
-    int n = A->rows;
-    Matrix* LU = matrix_lu_decomposition(A);
-    if (!LU) return NULL;
-    
-    // Forward substitution (Ly = b)
-    Matrix* y = create_matrix(n, 1);
-    if (!y) 
-    {
-        free_matrix(LU);
-        return NULL;
-    }
-    
-    for (int i = 0; i < n; i++) 
-    {
-        y->data[i][0] = b->data[i][0];
-        for (int j = 0; j < i; j++) 
-        {
-            y->data[i][0] -= LU->data[i][j] * y->data[j][0];
-        }
-    }
-    
-    // Backward substitution (Ux = y)
-    Matrix* x = create_matrix(n, 1);
-    if (!x) 
-    {
-        free_matrix(LU);
-        free_matrix(y);
-        return NULL;
-    }
-    
-    for (int i = n - 1; i >= 0; i--) 
-    {
-        x->data[i][0] = y->data[i][0];
-        for (int j = i + 1; j < n; j++) 
-        {
-            x->data[i][0] -= LU->data[i][j] * x->data[j][0];
-        }
-        x->data[i][0] /= LU->data[i][i];
-    }
-    
-    free_matrix(LU);
-    free_matrix(y);
-    return x;
-}
-
 // Matrix division (A/B = A * B^(-1))
 Matrix* matrix_divide(Matrix* m1, Matrix* m2) 
 {
@@ -938,145 +887,6 @@ Matrix* matrix_power(Matrix* m, Matrix* exp)
     return result;
 }
 
-// Eigenvector calculation
-Matrix* matrix_eigenvectors(Matrix* m) 
-{
-    if (!m)
-    {
-        matrix_perror("eigenvectors", MATRIX_NULL_PTR);
-        return NULL;
-    }
-    if (!matrix_is_square(m))
-    {
-        matrix_perror("eigenvectors", MATRIX_NOT_SQUARE);
-        return NULL;
-    }
-    
-    // Calculate eigenvectors using inverse iteration
-    Matrix* eigenvalues = matrix_eigenvalues(m);
-    if (!eigenvalues) 
-        return NULL;
-
-    int n = m->rows;
-    Matrix* eigenvectors = create_matrix(n, n);
-    if (!eigenvectors) 
-    {
-        free_matrix(eigenvalues);
-        return NULL;
-    }
-
-    const double EPSILON = 1e-10;
-    const int MAX_ITER = 100;
-    
-    for (int k = 0; k < n; k++) 
-    {
-        double lambda = eigenvalues->data[k][0];
-        Matrix* shifted = create_matrix(n, n);
-        Matrix* x = create_matrix(n, 1);
-        
-        // Initialize random vector
-        for (int i = 0; i < n; i++) 
-        {
-            x->data[i][0] = (double)rand()/RAND_MAX;
-            for (int j = 0; j < n; j++) 
-            {
-                shifted->data[i][j] = m->data[i][j];
-                if (i == j) 
-                {
-                    shifted->data[i][j] = shifted->data[i][j] - lambda;
-                }
-            }
-        }
-
-        // Inverse iteration
-        for (int iter = 0; iter < MAX_ITER; iter++) 
-        {
-            Matrix* y = solve_linear_system(shifted, x);
-            if (!y) 
-            {
-                lambda += EPSILON;
-                continue;
-            }
-
-            // Normalize
-            double norm = 0;
-            for (int i = 0; i < n; i++) 
-            {
-                norm += y->data[i][0] * y->data[i][0];
-            }
-            norm = sqrt(norm);
-
-            if (norm < EPSILON) 
-            {
-                free_matrix(y);
-                continue;
-            }
-
-            // Check convergence
-            double diff = 0;
-            for (int i = 0; i < n; i++) 
-            {
-                double normalized = y->data[i][0] / norm;
-                double d = normalized - x->data[i][0];
-                diff += d * d;
-                x->data[i][0] = normalized;
-            }
-
-            free_matrix(y);
-            if (sqrt(diff) < EPSILON) 
-                break; // Converged
-        }
-
-        // Store eigenvector
-        for (int i = 0; i < n; i++) 
-        {
-            eigenvectors->data[i][k] = x->data[i][0];
-        }
-
-        free_matrix(x);
-        free_matrix(shifted);
-    }
-
-    // Orthogonalize degenerate eigenvectors
-    for (int i = 0; i < n - 1; i++) 
-    {
-        double diff = eigenvalues->data[i][0] - eigenvalues->data[i+1][0];
-        if (fabs(diff) < EPSILON)
-         {
-            // Gram-Schmidt orthogonalization
-            double dot_product = 0;
-            for (int j = 0; j < n; j++) 
-            {
-                dot_product += eigenvectors->data[j][i] * eigenvectors->data[j][i+1];
-            }
-            
-            for (int j = 0; j < n; j++) 
-            {
-                eigenvectors->data[j][i+1] -= dot_product * eigenvectors->data[j][i];
-            }
-            
-            // Normalize
-            double norm = 0;
-            for (int j = 0; j < n; j++) 
-            {
-                norm += eigenvectors->data[j][i+1] * eigenvectors->data[j][i+1];
-            }
-            norm = sqrt(norm);
-            
-            if (norm > EPSILON) 
-            {
-                for (int j = 0; j < n; j++) 
-                {
-                    eigenvectors->data[j][i+1] /= norm;
-                }
-            }
-        }
-    }
-
-    free_matrix(eigenvalues);
-    return eigenvectors;
-}
-
 int main(int argc, char *argv[]) 
 {
     printf("\nMatrix Calculator\n");
@@ -1084,7 +894,7 @@ int main(int argc, char *argv[])
     printf("Input Format:\n");
     printf("- Matrix: [1, 2; 3, 4]\n");
     printf("- Operations: +, -, *, /, ^\n");
-    printf("- Functions: det, transpose, inverse, eigenval, eigenvec, trace, rank, lu, qr\n");
+    printf("- Functions: det, transpose, inverse, trace, rank, eigenval, lu, qr\n");
     printf("- Example: [1,2;3,4] * [5,6;7,8]\n");
     printf("- Use parentheses to control operation order: ([1,2;3,4] + [5,6;7,8]) * [1,0;0,1]\n");
     printf("Enter 'help' for details, 'quit' to exit\n");

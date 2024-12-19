@@ -31,7 +31,6 @@ Matrix* matrix_inverse(Matrix* m);                // Compute matrix inverse
 Matrix* matrix_trace(Matrix* m);                  // Compute matrix trace
 Matrix* matrix_rank(Matrix* m);                   // Compute matrix rank
 Matrix* matrix_eigenvalues(Matrix* m);            // Compute eigenvalues
-Matrix* matrix_eigenvectors(Matrix* m);           // Compute eigenvectors
 Matrix* matrix_lu_decomposition(Matrix* m);       // LU decomposition
 Matrix* matrix_qr_decomposition(Matrix* m);       // QR decomposition
 

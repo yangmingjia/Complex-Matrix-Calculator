@@ -36,7 +36,6 @@ NEWLINE     \n
 "transpose"     { return TRANSPOSE; }
 "inverse"       { return INVERSE; }
 "eigenval"      { return EIGENVAL; }
-"eigenvec"      { return EIGENVEC; }
 "trace"         { return TRACE; }
 "rank"          { return RANK; }
 "lu"            { return LU; }
@@ -61,12 +60,10 @@ NEWLINE     \n
      printf("- inverse A     : Calculate inverse of matrix A\n");
      printf("- trace A       : Sum of diagonal elements of A\n");
      printf("- rank A        : Calculate rank of matrix A\n");
+     printf("- eigenval A    : Calculate eigenvalues of A\n");
      printf("\nDecompositions:\n");
      printf("- lu A          : LU decomposition (returns [L;U])\n");
      printf("- qr A          : QR decomposition (returns [Q;R])\n");
-     printf("\nEigenvalue Analysis:\n");
-     printf("- eigenval A    : Calculate eigenvalues of A\n");
-     printf("- eigenvec A    : Calculate eigenvectors of A\n");
      
      
      printf("\nEnter expression: ");

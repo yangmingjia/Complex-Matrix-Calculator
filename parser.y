@@ -11,18 +11,13 @@ void yyerror(const char *s);
 int syntax_error_printed = 0;
 %}
 
-/* Define the token types and the union data type for the parser.
- * The union data type is used to store 
- * the numeric values and matrix pointers
- */
+/* Define the token types and the union data type for the parser. */
 %union {
     double num;           /* For numeric literals */
     Matrix* matrix;       /* For matrix operations */
 }
 
-/* Operator precedence and associativity (lowest to highest)
- * Defines the order of operations for the calculator
- */
+/* Precedence and associativity (lowest to highest) */
 %left PLUS MINUS                   /* Addition and subtraction - lowest priority */
 %left MULTIPLY DIVIDE              /* Multiplication and division */
 %right POWER                       /* Exponentiation - highest priority */
@@ -37,7 +32,7 @@ int syntax_error_printed = 0;
 %token <num> NUMBER                              /* Numeric values */
 %token LBRACKET RBRACKET COMMA SEMICOLON        /* Matrix delimiters */
 %token PLUS MINUS MULTIPLY DIVIDE POWER          /* Matrix operations */
-%token DET TRANSPOSE INVERSE EIGENVAL EIGENVEC   
+%token DET TRANSPOSE INVERSE EIGENVAL   
 %token LU QR TRACE RANK                         
 %token ERROR_TOKEN                              /* For error handling */
 %token HELP                                    /* Help command */
@@ -47,8 +42,6 @@ int syntax_error_printed = 0;
 %type <matrix> matrix_rows matrix_row
 
 %%
-
-/* Grammar Rules Section */
 
 /* Main program */
 program: lines
@@ -110,19 +103,15 @@ expr: matrix                { $$ = $1; }
     | INVERSE expr         { $$ = matrix_inverse($2); }
     | TRACE expr           { $$ = matrix_trace($2); }
     | EIGENVAL expr        { $$ = matrix_eigenvalues($2); }
-    | EIGENVEC expr        { $$ = matrix_eigenvectors($2); }
     | LU expr              { $$ = matrix_lu_decomposition($2); }
     | QR expr              { $$ = matrix_qr_decomposition($2); }
     | RANK expr            { $$ = matrix_rank($2); }
     ;
 
-/* Matrix Construction Rules
- * Define syntax for creating matrices
- */
+/* Matrix Construction */
 matrix: LBRACKET matrix_rows RBRACKET    { $$ = $2; }        /* Matrix [1,2;3,4] */
        ;
 
-/* Matrix construction */
 matrix_rows: matrix_row                          { $$ = $1; }
            | matrix_rows SEMICOLON matrix_row     { $$ = append_row($1, $3); }
            ;
@@ -133,9 +122,7 @@ matrix_row: NUMBER                               { $$ = create_matrix_element($1
 
 %%
 
-/* Error handling function
- * Prints syntax error message only once per error occurrence
- */
+/* Error handling function */
 void yyerror(const char *s) 
 {
     /* Prevent printing multiple error messages */
