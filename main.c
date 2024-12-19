@@ -269,12 +269,21 @@ Matrix* matrix_multiply(Matrix* m1, Matrix* m2)
 // Matrix transpose
 Matrix* matrix_transpose(Matrix* m) 
 {
-    if (!m) return NULL; // Check for valid matrix
+    if (!m) // Check for valid matrix
+    {
+        matrix_perror("transpose", MATRIX_NULL_PTR);
+        return NULL;
+    }
+
+    Matrix* result = create_matrix(m->cols, m->rows); // Create transposed matrix
     
-    Matrix* result = create_matrix(m->cols, m->rows);
-    if (!result) return NULL;
+    if (!result) 
+    {
+        matrix_perror("transpose", MATRIX_MEM_ERROR);
+        return NULL;
+    }
     
-    // Perform transpose
+    // // Swap rows and columns
     for (int i = 0; i < m->rows; i++) 
     {
         for (int j = 0; j < m->cols; j++) 
@@ -374,7 +383,7 @@ void print_matrix(Matrix* m)
         {
             double val = m->data[i][j];
             char buf[32];
-            if (fabs(val - round(val)) < 1e-10) 
+            if (val - round(val) == 0) 
             {
                 snprintf(buf, sizeof(buf), "%.0f", val); // Integer value
             } 
@@ -397,7 +406,7 @@ void print_matrix(Matrix* m)
         {
             double val = m->data[i][j];
             char buf[32];
-            if (fabs(val - round(val)) < 1e-10) 
+            if (val - round(val) == 0) 
             {
                 snprintf(buf, sizeof(buf), "%.0f", val);
             } 
@@ -446,15 +455,23 @@ Matrix* matrix_trace(Matrix* m)
 // LU Decomposition using Doolittle's method
 Matrix* matrix_lu_decomposition(Matrix* m) 
 {
-    // Check for valid matrix and square matrix
-    if (!m || !matrix_is_square(m)) 
+    if (!m)) // Check for valid matrix
+    {
+        matrix_perror("lu_decomposition", MATRIX_NULL_PTR);
         return NULL;
+    }
+
+    if(!matrix_is_square(m)) // Check for square matrix
+    {
+        matrix_perror("lu_decomposition", MATRIX_NOT_SQUARE);
+        return NULL;
+    }
     
     // Check if the matrix is decomposable
     for (int i = 0; i < m->rows-1; i++) 
     {
         // Check for zero diagonal element
-        if (fabs(m->data[i][i]) == 0) 
+        if (m->data[i][i] == 0) 
         {
             return NULL;
         }
@@ -515,7 +532,11 @@ Matrix* matrix_lu_decomposition(Matrix* m)
 // QR Decomposition using Gram-Schmidt process
 Matrix* matrix_qr_decomposition(Matrix* m) 
 {
-    if (!m) return NULL;
+    if (!m)
+    {
+        matrix_perror("qr_decomposition", MATRIX_NULL_PTR);
+        return NULL;
+    }
     
     int n = m->rows;
     int p = m->cols;
@@ -632,7 +653,7 @@ Matrix* matrix_inverse(Matrix* m)
     {
         // Find pivot
         double pivot = augmented->data[i][i];
-        if (fabs(pivot) < 1e-10) 
+        if (pivot == 0) 
         {
             matrix_perror("inverse", MATRIX_SINGULAR);
             free_matrix(augmented);
@@ -811,11 +832,17 @@ Matrix* matrix_rank(Matrix* m)
 Matrix* matrix_divide(Matrix* m1, Matrix* m2) 
 {
     if (!m1 || !m2) // Check for valid matrices
+    {
+        matrix_perror("divide", MATRIX_NULL_PTR);
         return NULL;
-    
+    }
+
     Matrix* inv = matrix_inverse(m2);
     if (!inv) // Check if inverse exists
+    {
+        matrix_perror("divide", MATRIX_SINGULAR);
         return NULL;
+    }
     
     Matrix* result = matrix_multiply(m1, inv);
     free_matrix(inv);
@@ -887,7 +914,7 @@ Matrix* matrix_power(Matrix* m, Matrix* exp)
     return result;
 }
 
-int main(int argc, char *argv[]) 
+int main() 
 {
     printf("\nMatrix Calculator\n");
     printf("================\n");

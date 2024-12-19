@@ -41,7 +41,6 @@ NEWLINE     \n
 "lu"            { return LU; }
 "qr"            { return QR; }
 
-"Q"             { exit(0); }
 "q"             { exit(0); }
 "quit"          { exit(0); }
 
@@ -85,4 +84,3 @@ int yywrap()
 {
     return 1; 
 }
-
